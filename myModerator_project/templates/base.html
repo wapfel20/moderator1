@@ -1,0 +1,210 @@
+{% load staticfiles %}
+{% load moderatorapp_tags %}
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->  
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->  
+<head>    
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Responsive HTML5 Website landing Page for Developers">
+    <meta name="author" content="3rd Wave Media">
+    
+    <title>{% block title %}No Title{% endblock %}</title>
+    
+    {% block extraTopHead %}{% endblock %}
+    
+
+    <link rel="shortcut icon" href="favicon.ico">  
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,300italic,400italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'> 
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="{% static "myModerator_project/plugins/bootstrap/css/bootstrap.min.css" %}">   
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" href="{% static "myModerator_project/plugins/font-awesome/css/font-awesome.css" %}">
+    <!-- github acitivity css -->
+    <link rel="stylesheet" href="{% static "myModerator_project/plugins/github-activity/dist/github-activity-0.1.1.min.css" %}">
+    <link rel="stylesheet" href="{% static "myModerator_project/plugins/github-activity/dist/octicons/octicons.min.css" %}">
+    
+    
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="{% static "myModerator_project/css/styles.css" %}">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    {% block extraBottomHead %}{% endblock %}
+    
+</head>
+
+<body>
+    <!-- ******HEADER****** --> 
+    <div class="navbar navbar-static-top">
+      <nav class="navbar navbar-default navbar-static-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="{% url "myModerator_project.views.dashboard" %}"><img class="mainLogo" src="{% static "myModerator_project/images/ModeratorLogo.png" %}"></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  
+              <ul class="nav navbar-nav">
+                <li id="dashboardLink" class="active"><a href="{% url "myModerator_project.views.dashboard" %}">My Dashboard<span class="sr-only">(current)</span></a></li>
+                <li><button class="btn btn-success" data-toggle="modal" data-target="#Dashboard-create" style="margin-top: 6px; margin-left: 5px">Create New Series</button></li>   
+              </ul>
+
+              <ul class="nav navbar-nav navbar-right">
+      
+                <li class="dropdown" style="margin-right: 20px;">
+                  <div class="float-right">
+                  {% if userInfo.user %}
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+              
+                    <div class="commentPicture">
+                    <img class="img-responsive profile-img"
+                    {% if userInfo.googleAvatar %}
+                    src="{{ userInfo.googleAvatar }}"
+                    {%else%}
+                    src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                    {%endif%}
+                    alt="project name" style="border-radius: 50px; margin-top:6px;margin-right: 10px"/>
+                    </div>
+                    <div class="commentText" style="margin-top:12px;">
+                    {{ userInfo.user.first_name }} {{ userInfo.user.last_name }}<span class="caret"></span>
+                    </div>
+                  </a>
+                 {%endif%}
+                  <ul class="dropdown-menu col-xs-8" role="menu">
+                    <li><a href="#">Sign Out</a></li>
+                  </ul>
+                  </div>
+                </li>
+              </ul>
+         
+            </div><!-- /.navbar-collapse -->
+        </div>
+      </nav>
+    </div>
+    <!-- *****BODY***** -->
+    {% block body %}{% endblock %}
+    
+    <!-- *****Footer***** -->
+    <footer class="footer navbar navbar-fixed-bottom">
+        <div class="container text-center">
+                <small class="copyright"></small>
+        </div><!--//container-->
+    </footer><!--//footer-->
+ 
+ 
+    <!-----------------   Modal Popups ------------------------------------------->
+    
+<div class="modal fade" id="Dashboard-create">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Create New Forum</h4>
+      </div>
+      <div class="modal-body">
+        
+              <form id="createForum-form" action="{% url "moderatorapp.views.createForum" %}" enctype='multipart/form-data' method="post" autocomplete="off">{% csrf_token %}
+                  <div class="form-group">
+                      <label for="forumTitle">Title</label>
+                      <input type="text" name="forumTitle" class="form-control" placeholder="Name your thread" maxlength="40" required minlength="3" maxlength="60">
+                  </div>
+                  <div class="form-group">
+                      <label for="forumDescription">Description</label>
+                      <textarea class="form-control" name="description" minlength="10" maxlength="140"></textarea>
+                  </div>
+                  <div class="form-group">
+                      <label for="forumDescription">This forum will be used for:</label>
+                      <select class="form-control" name="forumType" selectcheck="true">
+                        <option value="">Choose one</option>
+                        <option value="Question">Questions</option>
+                        <option value="Suggestion">Suggestions</option>
+                        <option value="Idea">Ideas</option>
+                      </select>
+                  </div>
+              </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" form="createForum-form" class="btn btn-danger">Create</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</div>
+
+
+<div class="modal fade" id="Dashboard-share">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Share with Others</h4>
+      </div>
+      <div class="modal-body">
+        
+              <form id="share-form" action="" enctype='multipart/form-data' method="post" autocomplete="off">{% csrf_token %}
+                  <div class="form-group">
+                      <label for="forumTitle">Add People</label>
+                      <input type="email" name="" class="form-control" placeholder="email1@domain.com, email2@domain.com,.." required minlength="4">
+                  </div>
+              </form>
+              <div class="header">Who has access</div>
+                <div>
+                  <ul class="list-group">
+                    <li class="list-group-item sharedUsers">
+                      <div class="commentPicture">
+                        <img class="img-responsive comment-img"
+                                                           
+                        src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                                                          
+                        alt="project name" />
+                      </div> 
+                      <div class="commentText">
+                        <p><b>Anonymous user</b></p>
+                            
+                      </div><!--//desc-->
+                    </li>
+                  </ul>
+             </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" form="share-form" class="btn btn-primary">Share</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</div>
+
+    
+    {% block modal %}{% endblock %}
+    
+    <!-----------------   End Modal Popups ------------------------------------------->
+ 
+ 
+    <!-- Javascript -->          
+    <script type="text/javascript" src="{% static "myModerator_project/plugins/jquery-1.11.2.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "myModerator_project/js/jquery-form.js" %}"></script>
+    <script type="text/javascript" src="{% static "myModerator_project/js/jquery.validate.js" %}"></script>
+    <script type="text/javascript" src="{% static "myModerator_project/plugins/bootstrap/js/bootstrap.min.js" %}"></script>
+    <!-- custom js -->
+    <script type="text/javascript" src="{% static "myModerator_project/js/main.js" %}"></script>
+
+    
+     {% block extraScript %}{% endblock %}
+     
+</body>
+</html> 

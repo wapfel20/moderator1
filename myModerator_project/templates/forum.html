@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load moderatorapp_tags %}
+
+
+{% block title %}Series:{{ myForum.title|title }}{% endblock %}
+
+{% block body %}
+    <div class="container sections-wrapper">
+        
+    {% if myForum %}
+
+        <div class="row">
+            <div id="primary" class="primary">
+
+            <!------------------- User Submission Area ----------------------------->
+            <div id="sticky" class="stickyHeader">
+               <div class="container submissionArea">
+                <div class="col-xs-12 col-md-12">
+                <ul class="list-group forumHeader">
+                    <li id="forumTitle" class ="list-group-item">
+                           
+                            <div class="section row">
+            <!----------------- Forum Title ------------------------->
+                                <div class="section-inner">
+                                    <div id="title" class="item featured">
+                                        <div class="row">
+                                            <div class="col-md-9"><h2 class="heading">{{ myForum.title|title }}<span id="forumInfo" class="fa fa-info-circle" style="margin-left: 5px"></span></h2></div>
+                                            <div class="col-md-3">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item" style="background:rgba(0,0,0,0);border: none;float:right;margin-top: -10px;">
+                                                        <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#Dashboard-share">Share</button>
+                                                        <button class="btn download"><i class="fa fa-cloud-download" style="font-size: 20px;margin: 0;"></i></button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    <div class="forumInfoSection">
+                                    {% if myForum.description %}               
+                                        <div class="item featured description">
+                                            <p>The purpose of this form is to {% if myForum.forumType = "Question" %}collect & field {%else%} gather {%endif%}<span style="color: red;">{{myForum.forumType|capfirst }}s.</span> {{ myForum.description|capfirst }}</p>
+                                        </div>
+                                        {%else%}
+                                        <div class="item featured description">
+                                            <p>The purpose of this form is to {% if myForum.forumType = "Question" %}collect & field {%else%} gather {%endif%}<span style="color: red;">{{myForum.forumType|capfirst }}s.</span></p>
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                                
+                                    
+                    </li>
+                </ul>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                        <ul id="postTitle" class="list-group" style="margin-top: -5px;margin: 0;">
+                           <li id="submission" class="list-group-item" style="padding: 15px 40px;">
+                                                    <div class="item row">
+                                
+                                                            <form id="createPost-form" action="{% url "moderatorapp.views.createPost" %}" enctype='multipart/form-data' method="post" autocomplete="off">{% csrf_token %}
+                <!----- pass in forum ID below (hidden)  -------->
+                                                                <input type="hidden" name="forumID" value="{{ myForum.id }}">
+                                                
+                                                                <div class="form-group">
+                                                                    <input class="form-control" placeholder="Add your {{ myForum.forumType }}..." name="post" minlength="10" maxlength="140" style="resize: none;height: 50px;">
+                                                                </div>
+                                                                <div class="checkbox" style="margin: 0">
+                                                                    <label>
+                                                                        <input name="anonymous" type="checkbox"> Post Anonymously
+                                                                    </label>
+                                                                <div class="form-group col-xs-12 col-sm-4 col-sm-offset-8 col-lg-2 col-lg-offset-10" style="margin-bottom: 0;">
+                                                                    <button type="submit" form="createPost-form" class="submit-btn col-xs-12 hidden" style="float: right">Submit {{ myForum.forumType }}</button>
+                                                                </div>
+                                                                </div>
+                                                            </form>
+                                                                        
+                                                    </div><!--//item-->
+                           </li>
+                        </ul>
+                </div>
+        
+        </div>
+        </div>
+        </div>
+            <div class="spacer">
+
+            </div>
+            </div>
+
+            <div class="row">
+                <!--------- Needs Containter ---------->
+            <div class="container">
+          
+                <ul id="allposts" class="list-group col-xs-11 col-xs-offset-1">               
+                    {% if myForum.posts.all %}
+                    {% for post in myForum.posts.all %}                                
+                    <li id="post{{ post.id }}" class="list-group-item posts">
+                            <div class="voting">
+                                <div class="voteCount" style="width: 90%;font-size:24px;text-align:center;">
+                                   <span>{{post.rating}}</span>
+                                </div>
+                                <button id="voting-buttons" type="submit" class="btn btn-default upvoting-button" data-options='{"postID":{{ post.id }}}'><span class="fa fa-thumbs-o-up"></span></button>
+                                <button id="voting-buttons" type="submit" class="btn btn-default downvoting-button" data-options='{"postID":{{ post.id }}}'><span class="fa fa-thumbs-o-down"></button>                       
+                            </div>
+                            <div class="item row">
+                                            <div class="postdiv" style="float: left;">  
+                                                <img class="img-responsive project-image"
+                                                     {% if not post.anonymous %}
+                                                         
+                                                        {% if post.moduser_set.all|getAvatar %}
+                                                            src="{{ post.moduser_set.all|getAvatar }}"
+                                                        {%else%}
+                                                            src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                                                        {%endif%}
+                                                    
+                                                     {%else%}
+                                                     src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                                                     {%endif%}
+                                                     alt="project name" />
+                                                {% if post.anonymous %}
+                                                    <b class="text-default">Anonymous User</b>
+                                                {% elif post.moduser_set.all %}
+                                                    {% for modUser in post.moduser_set.all %}
+                                                <b class="text-default">{{ modUser.user.first_name|capfirst }} {{ modUser.user.last_name|capfirst }}</b>
+                                                    {% endfor %}
+                                                {% else %}
+                                                <a href="#">Anonymous User</a>
+                                            {% endif %}
+                                            
+                                            </div>
+                                            <div class="postdiv">
+                                                <h3 class="post-title">{{ post.text |capfirst}}</h3>
+                                                  </div>
+                                  
+                                </div><!--//item-->
+                              
+                                        {% if not post.comments.all %}
+                                        <div class="header">
+                                        <span class="activeComments togglecommentBtn"><span class="commentNumber">0</span> Comments <i class="fa fa-angle-down"></i></span>
+                                        <i class="pull-right commentTime">{{ post.timeDate|timesince}} ago</i>
+                                        </div>
+                                        {%else%}
+                                        {% with post.comments.all.count as totalComment %}
+                                        <div class="header">
+                                        <span class="activeComments togglecommentBtn"><span class="commentNumber">{{ totalComment }}</span> Comment{{ totalComment|pluralize }}  <i class="fa fa-angle-down"></i></span>
+                                        <i class="pull-right commentTime">{{ post.timeDate|timesince}} ago</i>
+                                        </div>
+                             
+        <!-------- This is where my comments go ------->
+                                        
+                                    {% endwith %}
+                    {% with post.comments.all.count as commentNumber %}
+                        <ul class="allComments list-group hiddenList" style="display: none" >
+                            {% for currentComment in post.comments.all %}
+                            <li id="comment{{ currentComment.id }}" class="list-group-item comment" >
+                                        <div id="comment{{ currentComment.id }}" class="item row">
+                                    <div class="commentPicture">
+                                                  <img class="img-responsive comment-img"
+                                                            {% if currentComment.moduser_set.all|getAvatar %}
+                                                            src="{{ currentComment.moduser_set.all|getAvatar }}"
+                                                            {%else%}
+                                                            src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                                                            {%endif%}
+                                                            alt="project name" />
+                                    </div> 
+                                    <div class="commentText">
+                                       <p><span>
+                                    {% if currentComment.moduser_set.all %}
+                                        {% for modUser in currentComment.moduser_set.all %}
+                                            <b class="text-success">{{ modUser.user.first_name|capfirst }} {{ modUser.user.last_name|capfirst }}: </b>
+                                        {%endfor%}
+                                    {%else%}
+                                            <b>Anonomous: </b>
+                                    {%endif%}
+                                    </span>{{ currentComment.text|capfirst }}</p>
+                                    </div><!--//desc-->
+                                    
+                      
+                                </div><!--//item-->
+                            </li>
+             
+                            {% endfor %}
+                        </ul>    
+                        <ul class="allComments list-group visibleList">
+                            {% for currentComment in post.comments.all %}
+                            {% if forloop.counter > commentNumber|add:"-2" %}
+                            <li id="comment{{ currentComment.id }}" class="list-group-item comment" >
+                                        <div id="comment{{ currentComment.id }}" class="item row">
+                                    <div class="commentPicture">
+                                                  <img class="img-responsive comment-img"
+                                                            {% if currentComment.moduser_set.all|getAvatar %}
+                                                            src="{{ currentComment.moduser_set.all|getAvatar }}"
+                                                            {%else%}
+                                                            src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                                                            {%endif%}
+                                                            alt="project name" />
+                                    </div> 
+                                    <div class="commentText">
+                                       <p><span>
+                                    {% if currentComment.moduser_set.all %}
+                                        {% for modUser in currentComment.moduser_set.all %}
+                                            <b class="text-success">{{ modUser.user.first_name|capfirst }} {{ modUser.user.last_name|capfirst }}: </b>
+                                        {%endfor%}
+                                    {%else%}
+                                            <b>Anonomous: </b>
+                                    {%endif%}
+                                    </span>{{ currentComment.text|capfirst }}</p>
+                                    </div><!--//desc-->
+                                </div><!--//item-->
+                            </li>
+                    {%endif%}
+                            {% endfor %}
+                        </ul>
+                {%endwith%}
+                            {% endif %}
+                                        <ul class="list-group">
+                                            <li class="list-group-item comment">
+                                            <div class="comment-Submission">
+                                                <div class="item row">
+                                                                <img class="img-responsive comment-img"
+                                                                    {% if userInfo.googleAvatar %}
+                                                                    src="{{ userInfo.googleAvatar }}"
+                                                                    {%else%}
+                                                                    src="{% static "myModerator_project/images/noProfile.jpeg" %}"
+                                                                    {%endif%}
+                                                                    alt="project name" style="float:left;"/>
+                                                        
+                                        
+                                                                <input class="form-control commentInput" placeholder="Add a comment..." data-options='{ "postID":{{ post.id }} }' minlength="10" maxlength="140">
+                                                
+                                                            <button class="commentSubmit" type="submit" style="display: none;"></button>
+                                                </div><!--//item-->
+                                            </div>
+                                            </li>
+                                        </ul>
+                                
+                    </li> <!------------ end of this post------------>
+                        {% endfor %}
+                </ul>  <!------------ end of allpost ------------>
+
+            </div><!--------- end of container----------->
+                        {% else %}
+                            
+                        {% endif %}
+            
+    </div>
+ 
+   </div><!--//content-->  
+                                            
+                           
+                    
+    
+
+        
+    
+{% else %}
+                <p>Sorry succkkua yo shit is bunk!</p>
+{% endif %}
+    </div><!--//masonry-->
+{% endblock %}
+
+
+{% block extraScript %}
+    <script>
+        {% if not myForum.posts.all %}
+            $(document).ready(function(){
+                $('.user-Submission').slideToggle('slow');
+            });
+        {% endif %}
+        var createCommentURL = "{% url "moderatorapp.views.createComment" %}";
+        var adjustRatingURL = "{% url "moderatorapp.views.adjustRating" %}";
+    </script>
+    <script type="text/javascript" src="{% static "myModerator_project/js/forum.js" %}"></script>
+{% endblock %}
+
+

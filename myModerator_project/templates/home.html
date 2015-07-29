@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+<div class="container sections-wrapper">
+     <div class="row">
+        <div role="tabpanel" style="text-align: center;">
+            <div class="row">
+            
+            
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="pill">My Series</a></li>
+              <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="pill">Shared with Me</a></li>
+              <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="pill">Recently Viewed</a></li>
+            </ul>
+            
+            
+            </div>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane fade in active" id="home">              
+               
+                    <table class="table table-striped home" style="border: 1px solid silver;">
+                         <thead style="background-color: silver">
+                              <th>Creation Date</th>
+                              <th>Series Name</th>
+                              <th class="tableHide">Type</th>
+                              <th class="tableHide">Posts</th>
+                              <th class="tableHide" style="text-align: center">Manage</th>
+                         </thead>
+                         <tbody>
+                         
+                         {% if myForums %}
+                         {% for forum in myForums %}
+                              
+                         <tr>
+                              <td>{{ forum.timeDate|date }}</td>
+                              <td><a href="{% url "myModerator_project.views.forumView" forum.id %}">{{ forum.title|capfirst }}</a></td>
+                              <td class="tableHide">{{ forum.forumType|capfirst }}s</td>
+                              {% with forum.posts.all.count as numberOfPosts %}
+                              <td class="tableHide">{{ numberOfPosts }}</td>
+                              {%endwith%}
+                              <td class="tableHide" style="text-align: center"><button class="btn btn-primary share"><i class="fa fa-share-alt" style="margin: 0;"></i></button><button class="btn btn-default"><i class="fa fa-cloud-download" style="margin: 0;"></i></button><button class="btn btn-danger"><i class="fa fa-times" style="margin: 0;"></i></button></td>
+                         </tr>
+                             
+                         {% endfor %}
+                         {% else %}
+                              <tr>
+                                   <td colspan="5">Sorry, you have not created any series.</td>
+                              </tr>
+                         {% endif %}
+                    
+          
+               
+                         </tbody>
+                    </table>
+                    
+              </div>
+              <div role="tabpanel" class="tab-pane" id="profile">Shared with Me</div>
+              <div role="tabpanel" class="tab-pane" id="messages">Recently Veiwed</div>
+            </div>
+          
+          </div>
+     </div>
+   
+     
+     
+     
+     
+     
+     
+</div>
+
+      
+    
+{% endblock %}  <!-- end of body block -->
+
+
